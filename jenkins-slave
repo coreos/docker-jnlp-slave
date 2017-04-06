@@ -49,12 +49,19 @@ else
 
 	if [ -n "$JENKINS_NAME" ]; then
 		JENKINS_AGENT_NAME="$JENKINS_NAME"
-	fi	
+	fi
 
 	if [ -z "$JNLP_PROTOCOL_OPTS" ]; then
 		echo "Warning: JnlpProtocol3 is disabled by default, use JNLP_PROTOCOL_OPTS to alter the behavior"
 		JNLP_PROTOCOL_OPTS="-Dorg.jenkinsci.remoting.engine.JnlpProtocol3.disabled=true"
 	fi
 
-	exec java $JAVA_OPTS $JNLP_PROTOCOL_OPTS -cp /usr/share/jenkins/slave.jar hudson.remoting.jnlp.Main -headless $TUNNEL $URL $JENKINS_SECRET $JENKINS_AGENT_NAME "$@"
+    args=()
+    if [ $# -ge 2 ]; then
+        args=( "$@" )
+    else
+        args=( $TUNNEL $URL $JENKINS_SECRET $JENKINS_AGENT_NAME )
+    fi
+
+	exec java $JAVA_OPTS $JNLP_PROTOCOL_OPTS -cp /usr/share/jenkins/slave.jar hudson.remoting.jnlp.Main -headless "${args[@]}"
 fi
